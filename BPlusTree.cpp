@@ -1,6 +1,10 @@
 #include "BPlusTree.h"
 #include <math.h>
-
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
 using namespace std;
 
 
@@ -93,7 +97,7 @@ bool BPlusTree::remove(int key)
             }
             else if(Lsibling!=NULL){
                 Lsibling->Keys.insert(Lsibling->Keys.end(), t->Keys.begin(), t->Keys.end());
-                ((LeafNode*)Lsibling)->Value.insert(((LeafNode*)Lsibling)->Value.begin(),((LeafNode*)t)->Value.begin(), ((LeafNode*)t)->Value.end());
+                ((LeafNode*)Lsibling)->Value.insert(((LeafNode*)Lsibling)->Value.end(),((LeafNode*)t)->Value.begin(), ((LeafNode*)t)->Value.end());
                 ((LeafNode*)Lsibling)->Next=((LeafNode*)t)->Next;
                 t->Parent->Keys.erase(t->Parent->Keys.begin()+Child_num-1);
                 ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num);
@@ -370,7 +374,6 @@ Node* BPlusTree::deletion(int key)
         if(t->Keys[i]==key){
             t->Keys.erase(t->Keys.begin()+i);
             ((LeafNode*)t)->Value.erase(((LeafNode*)t)->Value.begin()+i);
-            
             break;
         }
     }
@@ -455,9 +458,8 @@ void BPlusTree::redistribution(Node* t){
     
 }
 
-int main() {
-    BPlusTree bp1(3);
-    // Insertions
+void insert_test(BPlusTree & bp1){
+    cout<<"---------Insert Test---------"<<endl;
     bp1.insert(2, "two");
     bp1.insert(21, "twenty-one");
     bp1.insert(11, "eleven");
@@ -487,7 +489,20 @@ int main() {
     bp1.insert(22, "twenty-two");
     bp1.insert(24, "twenty-four");
     bp1.insert(26, "twenty-six");
+    bp1.printKeys();
+}
 
+void copy_test(BPlusTree & bp1){
+    cout<<"-------- = operation Test--------"<<endl;
+    BPlusTree bp2 = bp1;
+    bp2.printKeys();
+    cout<<"-------- copy constructor Test--------"<<endl;
+    BPlusTree bp3 (bp1);
+    bp3.printKeys();
+}
+
+void remove_test(BPlusTree & bp1){
+    cout<<"-------- remove Test--------"<<endl;
     bp1.remove(24);
     bp1.remove(14);
     bp1.remove(8);
@@ -502,30 +517,28 @@ int main() {
     bp1.remove(10);
 
     bp1.printKeys();
-    return 0;
 }
 
-// int main(){
-//     BPlusTree tree(3);
-//     tree.insert(2, "two");
-//     tree.insert(11, "eleven");
-//     tree.insert(21, "twenty-one");
-//     tree.insert(8, "eight");
-//     tree.insert(64, "sixty-four");
-//     tree.insert(5, "five");
-//     tree.insert(21, "twenty-one");
-//     tree.insert(23, "twenty-three");
-//     tree.insert(6, "six");
-//     tree.insert(19, "nineteen");
-//     tree.insert(9, "nine");
-//     tree.insert(7, "seven");
-//     tree.insert(31, "thirty-one");
-//     tree.insert(45, "forty-five");
-//     tree.insert(39, "thirty-nine");
-//     tree.insert(60, "sixty");
-//     tree.insert(51, "fifty-one");
-//     tree.insert(97, "ninety-seven");
-//     tree.insert(77, "seventy-seven");
-//     tree.printKeys();
-//     return 0;
-// }
+void value_print_test(BPlusTree & bp1){
+    cout<<"-------- print value Test--------"<<endl;
+    bp1.printValues();
+}
+
+int main() {
+    BPlusTree bp1(3);
+    // Insertions
+    insert_test(bp1);
+
+    copy_test(bp1);
+
+    remove_test(bp1);
+
+    value_print_test(bp1);
+
+    BPlusTree bp4(4);
+
+    cout<<"------Test for n=4 ------"<<endl;
+    insert_test(bp4);
+
+    return 0;
+}

@@ -11,8 +11,7 @@ public:
     vector<int> Keys;
     Node* Parent;
     bool isLeaf;
-    virtual ~Node() {
-    }
+    virtual ~Node() {}
 };
 
 class LeafNode: public Node
@@ -21,8 +20,7 @@ public:
     Node* Next;
     vector<string> Value;
     LeafNode(){isLeaf=true; Next=NULL; Parent=NULL;}
-    ~LeafNode() {
-    }
+    ~LeafNode() {}
 };
 
 class In_Node:public Node
