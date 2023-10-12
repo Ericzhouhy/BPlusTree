@@ -44,7 +44,7 @@ bool BPlusTree::remove(int key)
         return false;
     }
 
-    Node* t=deletion(key);
+    Node* t = deletion(key);
 
     if(((LeafNode*)t)->Value.size()<ceil((n+1)/2) && t->Parent!=NULL){
         
