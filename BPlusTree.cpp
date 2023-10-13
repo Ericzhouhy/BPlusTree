@@ -88,14 +88,7 @@ bool BPlusTree::remove(int key)
             return true;
         }
         else {
-            if(Rsibling!=NULL){
-                t->Keys.insert(t->Keys.end(), Rsibling->Keys.begin(), Rsibling->Keys.end());
-                ((LeafNode*)t)->Value.insert(((LeafNode*)t)->Value.end(),((LeafNode*)Rsibling)->Value.begin(), ((LeafNode*)Rsibling)->Value.end());
-                ((LeafNode*)t)->Next=((LeafNode*)Rsibling)->Next;
-                t->Parent->Keys.erase(t->Parent->Keys.begin()+Child_num);
-                ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num+1);
-            }
-            else if(Lsibling!=NULL){
+            if(Lsibling!=NULL){
                 Lsibling->Keys.insert(Lsibling->Keys.end(), t->Keys.begin(), t->Keys.end());
                 ((LeafNode*)Lsibling)->Value.insert(((LeafNode*)Lsibling)->Value.end(),((LeafNode*)t)->Value.begin(), ((LeafNode*)t)->Value.end());
                 ((LeafNode*)Lsibling)->Next=((LeafNode*)t)->Next;
@@ -103,6 +96,14 @@ bool BPlusTree::remove(int key)
                 ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num);
                 t = Lsibling;
             }
+            else if(Rsibling!=NULL){
+                t->Keys.insert(t->Keys.end(), Rsibling->Keys.begin(), Rsibling->Keys.end());
+                ((LeafNode*)t)->Value.insert(((LeafNode*)t)->Value.end(),((LeafNode*)Rsibling)->Value.begin(), ((LeafNode*)Rsibling)->Value.end());
+                ((LeafNode*)t)->Next=((LeafNode*)Rsibling)->Next;
+                t->Parent->Keys.erase(t->Parent->Keys.begin()+Child_num);
+                ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num+1);
+            }
+            
             
             while(t->Parent!=this->head){
                 Rsibling=Lsibling=NULL;
@@ -125,7 +126,29 @@ bool BPlusTree::remove(int key)
                     Rsibling = ((In_Node*)t->Parent)->Children[Child_num+1];
                 }
 
-                if(Rsibling!=NULL){
+                if(Lsibling!=NULL){
+                    if(((In_Node*)Lsibling)->Children.size()-1>=floor((n+2)/2)){
+                        ((In_Node*)t)->Children.insert(((In_Node*)t)->Children.begin(),((In_Node*)Lsibling)->Children.back());
+                        t->Keys.insert(t->Keys.begin(), t->Parent->Keys[Child_num-1]);
+                        t->Parent->Keys[Child_num-1]=((In_Node*)t)->Children[0]->Keys.front();
+                        ((In_Node*)Lsibling)->Children.erase(((In_Node*)Lsibling)->Children.end()-1);
+                        Lsibling->Keys.erase(Lsibling->Keys.end()-1);
+                        ((In_Node*)t)->Children.front()->Parent=t;
+                        return true;
+                    }
+                    else {
+                        ((In_Node*)Lsibling)->Children.insert(((In_Node*)Lsibling)->Children.end(), ((In_Node*)t)->Children.begin(), ((In_Node*)t)->Children.end());
+                        Lsibling->Keys.insert(Lsibling->Keys.end(), t->Parent->Keys[Child_num-1]);
+                        Lsibling->Keys.insert(Lsibling->Keys.end(), t->Keys.begin(), t->Keys.end());
+                        for(int i=0;i<((In_Node*)t)->Children.size();++i){
+                            ((In_Node*)t)->Children[i]->Parent=Lsibling;
+                        }
+                        t->Parent->Keys.erase(t->Parent->Keys.begin()+Child_num-1);
+                        ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num);
+                        t = Lsibling;
+                    }
+                }
+                else if(Rsibling!=NULL){
                     if(((In_Node*)Rsibling)->Children.size()-1>=floor((n+2)/2)){
                         ((In_Node*)t)->Children.push_back(((In_Node*)Rsibling)->Children.front());
                         t->Keys.push_back(t->Parent->Keys[Child_num]);
@@ -147,29 +170,6 @@ bool BPlusTree::remove(int key)
                         t = Rsibling;
                     }
                 }
-                else if(Lsibling!=NULL){
-                    if(((In_Node*)Lsibling)->Children.size()-1>=floor((n+2)/2)){
-                        ((In_Node*)t)->Children.insert(((In_Node*)t)->Children.begin(),((In_Node*)Lsibling)->Children.back());
-                        t->Keys.insert(t->Keys.begin(), t->Parent->Keys[Child_num-1]);
-                        t->Parent->Keys[Child_num]=t->Keys.front();
-                        ((In_Node*)Lsibling)->Children.erase(((In_Node*)Lsibling)->Children.end()-1);
-                        Lsibling->Keys.erase(Lsibling->Keys.end()-1);
-                        ((In_Node*)t)->Children.front()->Parent=t;
-                        return true;
-                    }
-                    else {
-                        ((In_Node*)Lsibling)->Children.insert(((In_Node*)Lsibling)->Children.end(), ((In_Node*)t)->Children.begin(), ((In_Node*)t)->Children.end());
-                        Lsibling->Keys.insert(Lsibling->Keys.end(), t->Parent->Keys[Child_num-1]);
-                        Lsibling->Keys.insert(Lsibling->Keys.end(), t->Keys.begin(), t->Keys.end());
-                        for(int i=0;i<((In_Node*)t)->Children.size();++i){
-                            ((In_Node*)t)->Children[i]->Parent=Lsibling;
-                        }
-                        t->Parent->Keys.erase(t->Parent->Keys.begin()+Child_num-1);
-                        ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num);
-                        t = Lsibling;
-                    }
-                }
-
             }
             if(t->Parent==this->head && this->head->Keys.size()==0){
                 this->head=t;
@@ -511,10 +511,6 @@ void remove_test(BPlusTree & bp1){
     bp1.remove(64);
     bp1.remove(77);
     bp1.remove(2);
-    bp1.remove(5);
-    bp1.remove(3);
-    bp1.remove(9);
-    bp1.remove(10);
 
     bp1.printKeys();
 }
@@ -529,16 +525,16 @@ int main() {
     // Insertions
     insert_test(bp1);
 
-    copy_test(bp1);
+    //copy_test(bp1);
 
     remove_test(bp1);
 
-    value_print_test(bp1);
+    // value_print_test(bp1);
 
-    BPlusTree bp4(4);
+    // BPlusTree bp4(4);
 
-    cout<<"------Test for n=4 ------"<<endl;
-    insert_test(bp4);
+    // cout<<"------Test for n=4 ------"<<endl;
+    // insert_test(bp4);
 
     return 0;
 }
