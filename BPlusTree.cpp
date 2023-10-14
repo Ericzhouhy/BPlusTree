@@ -94,6 +94,8 @@ bool BPlusTree::remove(int key)
                 ((LeafNode*)Lsibling)->Next=((LeafNode*)t)->Next;
                 t->Parent->Keys.erase(t->Parent->Keys.begin()+Child_num-1);
                 ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num);
+                delete t;    
+                t = nullptr; 
                 t = Lsibling;
             }
             else if(Rsibling!=NULL){
@@ -102,6 +104,8 @@ bool BPlusTree::remove(int key)
                 ((LeafNode*)t)->Next=((LeafNode*)Rsibling)->Next;
                 t->Parent->Keys.erase(t->Parent->Keys.begin()+Child_num);
                 ((In_Node*)t->Parent)->Children.erase(((In_Node*)t->Parent)->Children.begin()+Child_num+1);
+                delete Rsibling;    
+                Rsibling = nullptr; 
             }
             
             
