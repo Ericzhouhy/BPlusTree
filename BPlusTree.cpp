@@ -511,7 +511,15 @@ void remove_test(BPlusTree & bp1){
     bp1.remove(64);
     bp1.remove(77);
     bp1.remove(2);
-
+    bp1.remove(1);
+    bp1.remove(3);
+    bp1.remove(9);
+    bp1.remove(16);
+    bp1.remove(15);
+    bp1.remove(20);
+    bp1.remove(22);
+    bp1.remove(26);
+    bp1.remove(7);
     bp1.printKeys();
 }
 
@@ -522,19 +530,19 @@ void value_print_test(BPlusTree & bp1){
 
 int main() {
     BPlusTree bp1(3);
-    // Insertions
+    //Insertions
     insert_test(bp1);
 
-    //copy_test(bp1);
+    copy_test(bp1);
 
     remove_test(bp1);
 
-    // value_print_test(bp1);
+    value_print_test(bp1);
 
-    // BPlusTree bp4(4);
+    BPlusTree bp4(4);
 
-    // cout<<"------Test for n=4 ------"<<endl;
-    // insert_test(bp4);
+    cout<<"------Test for n=4 ------"<<endl;
+    insert_test(bp4);
 
     return 0;
 }
